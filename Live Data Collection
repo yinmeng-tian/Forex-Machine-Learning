@@ -1,0 +1,43 @@
+import requests
+import json
+import pandas as pd
+import time
+import threading
+
+# API url link
+
+url = 'https://forex.1forge.com/1.0.2/quotes?pairs=EURUSD&api_key=API_KEY'
+
+def current_price(url):
+    response = requests.get(url)
+    data = response.json()
+    new = pd.DataFrame(data)
+    now = pd.to_datetime('now')
+    new.index = pd.Series([now] * len(new))
+    pd.options.display.float_format = '{:0f}'.format
+    return new
+
+def symbols(url):
+    url = 'https://forex.1forge.com/1.0.2/symbols?api_key=API_KEY'
+    response = requests.get(url)
+    data = response.json()
+    return data
+
+def quota(url):
+    url = 'https://forex.1forge.com/1.0.2/quota?api_key=API_KEY'
+    response = requests.get(url)
+    data = response.json()
+    return data
+
+# Update every 3 minutes, saving to pickle file
+
+def data_set():
+    threading.Timer(180, data_set).start()
+    data = pd.read_pickle('EURUSD.pkl')
+    data = data.append(current_price(url))
+    data.index.name = 'gmt'
+    data.to_pickle('EURUSD.pkl')
+    print(data)
+
+#print(current_price(url))
+data_set()
