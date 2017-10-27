@@ -1,27 +1,20 @@
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
 from matplotlib.finance import candlestick_ohlc
 import matplotlib.dates as mdates
-from matplotlib.finance import date2num
-import datetime as dt
 import matplotlib as mpl
+
+# data source: http://www.forextester.com/data/datasources
 
 data = pd.read_csv('EURUSD.txt', sep=',', parse_dates=[['<DTYYYYMMDD>', '<TIME>']], encoding="utf-8-sig")
 data = data[(data['<DTYYYYMMDD>_<TIME>'] >= '2017-09-01')]
 data.columns = ['timestamp', 'symbol', 'open', 'high', 'low', 'close', 'vol']
 data.set_index('timestamp', inplace=True)
 data.to_pickle('Sep2017-EURUSD.pkl')
-#print(data)
-#print(data.info())
 
 data = pd.read_pickle('Sep2017-EURUSD.pkl')
-#new_data = data.resample('60T').mean()
-#data.plot()
+# new_data = data.resample('60T').mean() :: data set is too big, resampling may be necessary 
 
-#data = data.reset_index()
-#data['timestamp2'] = data['timestamp'].map(mdates.date2num)
 data['timestamp2'] = mpl.dates.date2num(data.index.to_pydatetime())
 fig, ax = plt.subplots()
 candlestick_ohlc(ax, data[['timestamp2','open','close','high','low']].values, width=0.1, alpha=0.5, colorup = 'g')
